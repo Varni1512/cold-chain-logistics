@@ -75,3 +75,12 @@ docker run -v mssql_data:/var/opt/mssql \
   -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 - copy the ip address of the ec2 (public)
+
+# Phase 1
+
+## SOP Ingestion
+
+- https://app.pinecone.io/ > get api key
+- Use it in .env
+- run python scripts/ingest_sop_pinecone.py
+
