@@ -9,6 +9,11 @@ export default function MarkdownView({ content }) {
   const hasTelemetry = /Telemetry/i.test(content);
   const hasActionPlan = /Action Plan/i.test(content);
 
+  // Check if content is an Out of Domain refusal
+  if (/Out of (?:Domain|Scope)/i.test(content) || /I am (?:specialized|dedicated) exclusively in/i.test(content) || /outside our supply chain/i.test(content)) {
+    return <OutOfDomainView content={content} />;
+  }
+
   if (hasExecutiveSummary || (hasTelemetry && hasActionPlan)) {
     return <StructuredIncidentReport content={content} />;
   }
@@ -394,16 +399,113 @@ function renderSubSections(text) {
   );
 }
 
+function OutOfDomainView({ content }) {
+  const lines = content.split('\n').map(l => l.trim()).filter(Boolean);
+  return (
+    <div
+      style={{
+        background: '#fffbeb',
+        border: '1px solid #fde68a',
+        borderLeft: '4px solid #d97706',
+        borderRadius: '8px',
+        padding: '16px 20px',
+        color: '#92400e'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+        <AlertTriangle size={18} color="#b45309" />
+        <span style={{ fontWeight: 700, fontSize: '0.925rem', color: '#b45309' }}>
+          Out of Operational Scope
+        </span>
+      </div>
+      <div style={{ fontSize: '0.875rem', color: '#78350f', lineHeight: 1.6 }}>
+        {lines.map((line, idx) => {
+          if (line.startsWith('*') || line.startsWith('-') || line.startsWith('•')) {
+            return (
+              <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '4px 0 4px 8px' }}>
+                <span style={{ color: '#d97706', fontWeight: 'bold' }}>•</span>
+                <span>{line.replace(/^[*•\-]\s*/, '').replace(/[*_]/g, '')}</span>
+              </div>
+            );
+          }
+          return (
+            <p key={idx} style={{ margin: '6px 0' }}>
+              {line.replace(/[*_#]/g, '')}
+            </p>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function GeneralFormattedView({ content }) {
-  const paragraphs = content.split('\n\n').filter(Boolean);
+  const blocks = content.split('\n\n').filter(Boolean);
 
   return (
     <div className="markdown-container">
-      {paragraphs.map((p, idx) => (
-        <p key={idx} style={{ margin: '8px 0', lineHeight: 1.6, color: '#292524', fontSize: '0.9rem' }}>
-          {p.replace(/[*_]/g, '')}
-        </p>
-      ))}
+      {blocks.map((block, idx) => {
+        const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+
+        // Check if block is a markdown table
+        const tableLines = lines.filter(l => l.includes('|'));
+        if (tableLines.length >= 2) {
+          const headers = tableLines[0].split('|').map(h => h.trim()).filter(Boolean);
+          const dataStartIdx = tableLines[1].includes('---') ? 2 : 1;
+          const rows = [];
+          for (let i = dataStartIdx; i < tableLines.length; i++) {
+            const cells = tableLines[i].split('|').map(c => c.trim()).filter(Boolean);
+            if (cells.length > 0) rows.push(cells);
+          }
+
+          if (headers.length > 0 && rows.length > 0) {
+            return (
+              <div key={idx} style={{ overflowX: 'auto', borderRadius: '6px', border: '1px solid #ded9cd', background: '#ffffff', margin: '10px 0' }}>
+                <table className="bi-table" style={{ margin: 0 }}>
+                  <thead>
+                    <tr>
+                      {headers.map((h, i) => (
+                        <th key={i}>{h.replace(/[*_]/g, '')}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r, rIdx) => (
+                      <tr key={rIdx}>
+                        {r.map((cell, cIdx) => (
+                          <td key={cIdx}>{cell.replace(/[*_]/g, '')}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          }
+        }
+
+        // Check if block is a bullet list
+        if (lines.every(l => l.startsWith('*') || l.startsWith('-') || l.startsWith('•'))) {
+          return (
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '6px', margin: '8px 0' }}>
+              {lines.map((line, lIdx) => (
+                <div key={lIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: '#0f766e', fontWeight: 'bold' }}>•</span>
+                  <span style={{ fontSize: '0.875rem', color: '#292524', lineHeight: 1.5 }}>
+                    {line.replace(/^[*•\-]\s*/, '').replace(/[*_]/g, '')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} style={{ margin: '8px 0', lineHeight: 1.6, color: '#292524', fontSize: '0.9rem' }}>
+            {block.replace(/[*_]/g, '')}
+          </p>
+        );
+      })}
     </div>
   );
 }
