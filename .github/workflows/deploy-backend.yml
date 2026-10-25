@@ -1,0 +1,30 @@
+name: Deploy Backend to AWS EC2
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Deploy to AWS EC2 via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          echo "🚀 Starting Automated Deployment on EC2..."
+          cd ~/cold-chain-logistics
+          git pull origin main
+          cd backend
+          npm install --omit=dev
+          pm2 reload coldpilot-backend || pm2 start src/server.js --name "coldpilot-backend"
+          echo "✅ Backend successfully reloaded with zero downtime!"
