@@ -151,6 +151,14 @@ export default function Sidebar({ currentTab, setTab, sessionId, resetSession, h
       <div style={{ padding: '16px', borderTop: '1px solid #ded9cd', background: '#faf9f5' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.725rem', color: '#78716c', fontWeight: 600 }}>AWS Cloud EC2</span>
+            <span className={`badge ${isConnected ? 'badge-safe' : 'badge-warn'}`} style={{ fontSize: '0.7rem' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isConnected ? '#059669' : '#d97706', display: 'inline-block' }}></span>
+              {isConnected ? 'Running (c7i-flex)' : 'Stopped (Standby)'}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.725rem', color: '#78716c', fontWeight: 600 }}>MSSQL Database</span>
             <span className={`badge ${isConnected ? 'badge-safe' : 'badge-warn'}`} style={{ fontSize: '0.7rem' }}>
               <Database size={11} />
