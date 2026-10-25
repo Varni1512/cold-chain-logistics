@@ -16,7 +16,7 @@ export const config = {
   // LLM Config
   agentLlm: (process.env.Agent_llm || process.env.AGENT_LLM || 'GROQ').trim().toUpperCase(),
   groqApiKey: process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.replace(/["']/g, '').trim() : '',
-  groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+  groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   deepseekApiKey: process.env.DEEPSEEK_API_KEY || '',
   

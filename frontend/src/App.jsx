@@ -12,7 +12,7 @@ function generateSessionId() {
 }
 
 export default function App() {
-  const [currentTab, setTab] = useState('dashboard');
+  const [currentTab, setTab] = useState('dispatch');
   const [sessionId, setSessionId] = useState(() => {
     return localStorage.getItem('fde_session_id') || generateSessionId();
   });

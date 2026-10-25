@@ -39,7 +39,7 @@ function getLlmClient() {
       apiKey: apiKey,
       baseURL: 'https://api.groq.com/openai/v1'
     }),
-    model: config.groqModel || 'llama-3.3-70b-versatile'
+    model: config.groqModel || 'openai/gpt-oss-120b'
   };
 }
 
